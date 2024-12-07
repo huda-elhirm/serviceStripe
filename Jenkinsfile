@@ -13,9 +13,9 @@ pipeline {
                 sh 'npm install' // Install Node.js dependencies
             }
         }
-        stage('Build React App') {
+        stage('Start React App') {
             steps {
-                sh 'npm run build' // Build the React app
+                sh 'npm run start' // Start the React app
             }
         }
         stage('Build Docker Image') {
