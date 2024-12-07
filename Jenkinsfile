@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'stripe-server'          // Replace with your Docker image name
-        DOCKER_CREDENTIALS_ID = 'realestate1234' // Jenkins Docker Hub credentials ID
+        DOCKER_IMAGE = 'realestate1234/stripe-server'          // Replace with your Docker image name
+        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials' // Jenkins Docker Hub credentials ID
     }
 
     stages {
