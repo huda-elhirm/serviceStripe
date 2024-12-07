@@ -18,7 +18,7 @@ spec:
         - name: stripe-server
           image: ealestate1234/stripe-server:latest # Replace with your Docker Hub image
           ports:
-            - containerPort: 4242 # Ensure this matches the server port
+            - containerPort: 5252 # Ensure this matches the server port
           env:
             - name: STRIPE_API_KEY
               valueFrom:
@@ -50,4 +50,4 @@ spec:
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 4242
+      targetPort: 5252
