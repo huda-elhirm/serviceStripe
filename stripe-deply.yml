@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stripe-server-deployment
+  labels:
+    app: stripe-server
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: stripe-server
+  template:
+    metadata:
+      labels:
+        app: stripe-server
+    spec:
+      containers:
+        - name: stripe-server
+          image: ealestate1234/stripe-server:latest # Replace with your Docker Hub image
+          ports:
+            - containerPort: 4242 # Ensure this matches the server port
+          env:
+            - name: STRIPE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: stripe-secrets
+                  key: stripeApiKey
+            - name: STRIPE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: stripe-secrets
+                  key: stripeSecretKey
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stripe-server-service
+spec:
+  type: ClusterIP
+  selector:
+    app: stripe-server
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 4242
