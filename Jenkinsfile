@@ -1,59 +1,47 @@
 pipeline {
     agent any
-    tools {
-        nodejs 'NodeJs' // Ensure 'NodeJs' is configured in Manage Jenkins -> Global Tool Configuration
-    }
+
     environment {
-        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials' // Replace with your Jenkins credential ID for Docker Hub
-        IMAGE_NAME = 'realestate1234/stripe-server' // Replace with your Docker Hub repository
+        DOCKER_IMAGE = 'stripe-server'          // Replace with your Docker image name
+        DOCKER_CREDENTIALS_ID = 'realestate1234' // Jenkins Docker Hub credentials ID
     }
+
     stages {
-        stage('Install Dependencies') { 
+        stage('Install Dependencies') {
             steps {
-                sh 'npm install' // Install Node.js dependencies
+                script {
+                    // Install dependencies to ensure everything is set up correctly
+                    sh 'npm install'
+                }
             }
         }
-        stage('Start React App') {
-            steps {
-                sh 'npm run start' // Start the React app
-            }
-        }
+
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Define image tag
-                    def imageTag = "${IMAGE_NAME}:latest"
-                    // Build the Docker image with the proper build context (.)
-                    sh "docker build -t ${imageTag} ."
+                    sh "docker build -t ${DOCKER_IMAGE}:latest ."
                 }
             }
         }
-        stage('Push to Docker Hub') {
+
+        stage('Push Docker Image to Docker Hub') {
             steps {
                 script {
-                    // Push the Docker image to Docker Hub
                     docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
-                        def imageTag = "${IMAGE_NAME}:latest"
-                        sh "docker push ${imageTag}" // Push the latest tag
+                        sh "docker tag ${DOCKER_IMAGE}:latest ${DOCKER_IMAGE}:latest"
+                        sh "docker push ${DOCKER_IMAGE}:latest"
                     }
                 }
             }
         }
-        /*stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    withCredentials([file(credentialsId: 'kube-config', variable: 'KUBECONFIG')]) {
-                        // Set KUBECONFIG environment variable
-                        sh 'export KUBECONFIG=${KUBECONFIG}'
-                        
-                        // Apply the Kubernetes YAML file from the root directory
-                        sh "kubectl apply -f react-front-depl.yml"
-                        
-                        // Verify the deployment rollout
-                        sh "kubectl rollout status deployment/react-front-depl -n default"
-                    }
-                }
-            }
-        }*/
+    }
+
+    post {
+        success {
+            echo 'Docker image built and pushed successfully.'
+        }
+        failure {
+            echo 'Pipeline failed. Please check the logs.'
+        }
     }
 }
