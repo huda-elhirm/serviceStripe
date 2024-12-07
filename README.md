@@ -1,1 +1,1 @@
-# serviceStripe
+# Accepting a payment
